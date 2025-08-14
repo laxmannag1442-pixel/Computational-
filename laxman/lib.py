@@ -9,14 +9,14 @@ class laxmanlibrary:
           matrix.append(row)
         return matrix
         
-  def lcg(self,seed):
+  def lcg(self,seed,n):
     a = 1103515245 
     c = 12345
     m = 32768
     list =[seed]
-    for _ in range(9999):
+    for _ in range(int(n)):
       seed = (a*seed +c)%m
-      list.append(seed)
+      list.append(seed/m)
     return list
       
     
