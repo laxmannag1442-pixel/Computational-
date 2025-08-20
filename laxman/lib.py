@@ -1,4 +1,4 @@
-# Name-Laxman Nag ,Roll number-2311092
+,# Name-Laxman Nag ,Roll number-2311092
 # My Own Library for future use
 
 import numpy as np
@@ -59,22 +59,22 @@ class laxmanlibrary:
     plt.show()
 
   #to solve linear equation using gauss jordan 
-  def make_augmented_matrix(A,B):
+  def make_augmented_matrix(self,A,B):
     matrix =[]
     for row,b in zip(A,B):
         matrix.append(row + b)
     return matrix
 
-  def rows_swap(matrix , i , j):
+  def rows_swap(self,matrix , i , j):
     matrix[i], matrix[j] = matrix[j] , matrix[i]
     return matrix
 
-  def scaled_and_add_rows(matrix,oper_row,ref_row,scalar):
+  def scaled_and_add_rows(self,matrix,oper_row,ref_row,scalar):
     for i in range(len(matrix[oper_row])):
         matrix[oper_row][i] = matrix[oper_row][i] - matrix[ref_row][i]* scalar
     return matrix
 
-  def find_row_num(matrix,column):
+  def find_row_num(self,matrix,column):
     max = 0
     for row in matrix:
         if row[column]>max:
@@ -86,14 +86,14 @@ class laxmanlibrary:
             row_number = i
             return row_number,pivot_element
         
-  def scaled(matrix,row_num,column_num):
+  def scaled(self,matrix,row_num,column_num):
     v = matrix[row_num][column_num]
     for i in range(len(matrix[0])):
         matrix[row_num][i] = matrix[row_num][i]/v
     return matrix
     
-  def find_solution(A,b):
-    matrix = make_augmented_matrix(A,B)
+  def find_solution(self,A,b):
+    matrix = make_augmented_matrix(A,b)
     for j in range(len(matrix[0])):    
         row , pivot = find_row_num(matrix,j)
         i = j
