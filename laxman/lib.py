@@ -58,6 +58,56 @@ class laxmanlibrary:
     plt.grid(True)
     plt.show()
 
+  #to solve linear equation using gauss jordan 
+  def make_augmented_matrix(A,B):
+    matrix =[]
+    for row,b in zip(A,B):
+        matrix.append(row + b)
+    return matrix
+
+  def rows_swap(matrix , i , j):
+    matrix[i], matrix[j] = matrix[j] , matrix[i]
+    return matrix
+
+  def scaled_and_add_rows(matrix,oper_row,ref_row,scalar):
+    for i in range(len(matrix[oper_row])):
+        matrix[oper_row][i] = matrix[oper_row][i] - matrix[ref_row][i]* scalar
+    return matrix
+
+  def find_row_num(matrix,column):
+    max = 0
+    for row in matrix:
+        if row[column]>max:
+            max =row[column]
+    pivot_element = max
+
+    for i in range(len(matrix)):
+        if matrix[i][column] ==max:
+            row_number = i
+            return row_number,pivot_element
+        
+  def scaled(matrix,row_num,column_num):
+    v = matrix[row_num][column_num]
+    for i in range(len(matrix[0])):
+        matrix[row_num][i] = matrix[row_num][i]/v
+    return matrix
+    
+  def find_solution(A,b):
+    matrix = make_augmented_matrix(A,B)
+    for j in range(len(matrix[0])):    
+        row , pivot = find_row_num(matrix,j)
+        i = j
+        if i <=len(matrix)-1 :
+            if i!=row: rows_swap(matrix,i,row) 
+            scaled(matrix,i,j)
+            for z in range(len(matrix)):
+                if z!=i:
+                    scaled_and_add_rows(matrix,z,i,matrix[z][j])
+    sol = []
+    for row in matrix:
+        sol.append(row[-1])
+    return sol
+
       
     
     
