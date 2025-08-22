@@ -106,8 +106,47 @@ class laxmanlibrary:
     sol = []
     for row in matrix:
         sol.append(row[-1])
-    return sol
+    return sol  # return the solution set
 
+  # code for matrix multiplication  
+  def matrix_multiplication(self,a,b):
+        m =len(a)
+        n = len(b[0])
+        c =[[1]*n for _ in range(m)]
+        for i in range(m):
+          for j in range(n):
+            sum =0
+            for k in range(len(b)):
+              sum+=a[i][k]*b[k][j]
+            c[i][j] =  sum 
+      
+        return c # return  the matrix multiplication of a and b
+
+  
+  #to code for lu decomposition by doolittle
+  def lu_decomposition_doolittle(self,matrix):
+    n = len(matrix)
+    l=[[0]*n for i in range (n)]
+    u=[[0]*n for i in range(n)]
+  
+    # Corrected initialization for the first row of u and diagonal of l
+    for j in range(n):
+        u[0][j] ,l[j][j] = matrix[0][j] ,1
+    for j in range(n):
+      for i in range(n):       
+        sum_u= 0
+        if i>=1 and i<=j :      #substituting elements of upper triangular matrix
+          for k in range(i):
+            sum_u+=l[i][k]*u[k][j]
+          u[i][j]=matrix[i][j]-sum_u 
+      
+        if i>j:                  #substituting elements of lower triangular matrix
+          sum_l=0
+          for k in range(j):
+            sum_l+=l[i][k]*u[k][j]
+          l[i][j]=(matrix[i][j]-sum_l)/u[j][j]
+  
+    return l , u    #return lower triangular matrix and upper triangular matrix
       
     
     
