@@ -93,16 +93,16 @@ class laxmanlibrary:
     return matrix
     
   def find_solution(self,A,b):
-    matrix = make_augmented_matrix(A,b)
+    matrix = self.make_augmented_matrix(A,b)
     for j in range(len(matrix[0])):    
-        row , pivot = find_row_num(matrix,j)
+        row , pivot = self.find_row_num(matrix,j)
         i = j
         if i <=len(matrix)-1 :
-            if i!=row: rows_swap(matrix,i,row) 
-            scaled(matrix,i,j)
+            if i!=row: self.rows_swap(matrix,i,row) 
+            self.scaled(matrix,i,j)
             for z in range(len(matrix)):
                 if z!=i:
-                    scaled_and_add_rows(matrix,z,i,matrix[z][j])
+                    self.scaled_and_add_rows(matrix,z,i,matrix[z][j])
     sol = []
     for row in matrix:
         sol.append(row[-1])
