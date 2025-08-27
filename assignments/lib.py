@@ -1,4 +1,4 @@
-,# Name-Laxman Nag ,Roll number-2311092
+# Name-Laxman Nag ,Roll number-2311092
 # My Own Library for future use
 
 import numpy as np
