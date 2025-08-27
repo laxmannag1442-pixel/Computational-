@@ -1,6 +1,6 @@
 from lib  import laxmanlibrary
 z = laxmanlibrary()
-A = z.read_matrix("matrix_A")
+A = z.read_matrix("matrix_A.txt")
 l,u = lu_decomposition_doolittle(A)
 
 print("the given matrix :",A)
