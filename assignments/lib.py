@@ -4,8 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-class laxmanlibrary:
-
+class LaxmanLibrary:
   # to read matrix from file 
   def read_matrix(self,filename):
       with open(filename,'r') as file:
@@ -21,17 +20,17 @@ class laxmanlibrary:
     a = 1103515245 
     c = 12345
     m = 32768
-    list =[]
+    nums =[]
     for _ in range(int(n)):
       seed = (a*seed +c)%m
-      list.append(seed/m)
-    return list
+      nums.append(seed/m)
+    return nums
   
   # to create a list of uniformly_pRNG between [min_value,max_value)
   def uniformly_pRNG(self,seed,n,min_value,max_value):
-    list = self.lcg(seed,n)
+    list_1 = self.lcg(seed,n)
     new_l =[]
-    for i in list:
+    for i in list_1:
       i = min_value+(max_value-min_value)*i
       new_l.append(i)
     return new_l
@@ -39,18 +38,18 @@ class laxmanlibrary:
 
   # to create a list of exponentially pRNG  
   def exponentially_pRNG(self,seed,n,a):
-    list = self.lcg(seed,n)
+    list_ran = self.lcg(seed,n)
     new_l =[]
-    for i in list:
+    for i in list_ran:
       i = (-1)*np.log(i)/a
       new_l.append(i)
     return new_l
 
 
   # to plot the correlation of pRNG
-  def correlation_plot(self,list,k):
-    x =list[k:]
-    y =list[:-k]
+  def correlation_plot(self,data_list,k=5):
+    x =data_list[k:]
+    y =data_list[:-k]
     plt.scatter(x,y,marker ="o",color ="blue")
     plt.title(rf"correlation ploting between $x_i$ and $x_{{i+{k}}}$")
     plt.xlabel("$x_i$")
@@ -77,14 +76,14 @@ class laxmanlibrary:
       return matrix
 
   def find_row_num(self, matrix, column):
-      # Partial pivoting
-      max_val = 0
-      row_number = column
-      for i in range(column, len(matrix)):
-          if abs(matrix[i][column]) > abs(max_val):
-              max_val = matrix[i][column]
-              row_number = i
-      return row_number, max_val
+        row_number = column
+        max_val = abs(matrix[column][column])
+        for i in range(column, len(matrix)):
+            if abs(matrix[i][column]) > max_val:
+                max_val = abs(matrix[i][column])
+                row_number = i
+        return row_number, matrix[row_number][column]
+
 
   def scaled(self, matrix, row_num, column_num):
       v = matrix[row_num][column_num]
@@ -128,29 +127,39 @@ class laxmanlibrary:
 
   
   #to code for lu decomposition by doolittle
-  def lu_decomposition_doolittle(self,matrix):
-    n = len(matrix)
-    l=[[0]*n for i in range (n)]
-    u=[[0]*n for i in range(n)]
-  
-    # Corrected initialization for the first row of u and diagonal of l
-    for j in range(n):
-        u[0][j] ,l[j][j] = matrix[0][j] ,1
-    for j in range(n):
-      for i in range(n):       
-        sum_u= 0
-        if i>=1 and i<=j :      #substituting elements of upper triangular matrix
-          for k in range(i):
-            sum_u+=l[i][k]*u[k][j]
-          u[i][j]=matrix[i][j]-sum_u 
-      
-        if i>j:                  #substituting elements of lower triangular matrix
-          sum_l=0
-          for k in range(j):
-            sum_l+=l[i][k]*u[k][j]
-          l[i][j]=(matrix[i][j]-sum_l)/u[j][j]
-  
-    return l , u    #return lower triangular matrix and upper triangular matrix
+  def lu_decomposition(self,A):
+    """Performs LU decomposition of A (without pivoting). Returns L, U."""
+    n = len(A)
+    L = [[0.0]*n for _ in range(n)]
+    U = [[0.0]*n for _ in range(n)]
+    
+    for i in range(n):
+        # Upper Triangular
+        for k in range(i, n):
+            sum_ = sum(L[i][j]*U[j][k] for j in range(i))
+            U[i][k] = A[i][k] - sum_
+        # Lower Triangular
+        L[i][i] = 1  # Diagonal = 1
+        for k in range(i+1, n):
+            sum_ = sum(L[k][j]*U[j][i] for j in range(i))
+            L[k][i] = (A[k][i] - sum_) / U[i][i]
+    return L, U
+
+  def forward_substitution(self,L, b):
+    """Solves L*y = b"""
+    n = len(L)
+    y = [0.0]*n
+    for i in range(n):
+        y[i] = b[i] - sum(L[i][j]*y[j] for j in range(i))
+    return y
+
+  def backward_substitution(self,U, y):
+    """Solves U*x = y"""
+    n = len(U)
+    x = [0.0]*n
+    for i in reversed(range(n)):
+        x[i] = (y[i] - sum(U[i][j]*x[j] for j in range(i+1, n))) / U[i][i]
+    return x
 
   def cholesky_decompose(self,A):
       n = len(A)
@@ -198,7 +207,8 @@ class laxmanlibrary:
           if max(abs(x_new[i][0]-x_old[i][0]) for i in range(n)) < tol:
               return x_new, it+1
           
-          x_old = x_new[:]
+          x_old = [row[:] for row in x_new]
+
       
       raise ValueError("Jacobi did not converge within max_iter")
   
@@ -308,6 +318,117 @@ class laxmanlibrary:
         x0 = x_new
     return None, i+1
 
+
+  def generate_polynomial(self, coefficients):
+    def polynomial(x):
+        result = 0
+        degree = len(coefficients) - 1
+        for i, coeff in enumerate(coefficients):
+            result += coeff * (x ** (degree - i))
+        return result
+    def derivative(x):
+        result = 0
+        degree = len(coefficients) - 1
+        for i, coeff in enumerate(coefficients[:-1]):
+            result += (degree - i) * coeff * (x ** (degree - i - 1))
+        return result
+    def second_derivative(x):
+        result = 0
+        degree = len(coefficients) - 1
+        for i, coeff in enumerate(coefficients[:-2]):
+            result += (degree - i) * (degree - i - 1) * coeff * (x ** (degree - i - 2))
+        return result
+    return polynomial, derivative, second_derivative
+
+  def laguerre_method(self, coefficients, initial_guess, tol=1e-6, max_iter=100):
+      f, f_prime, f_double_prime = self.generate_polynomial(coefficients)
+      x = initial_guess
+      for iteration in range(max_iter):
+          fx = f(x)
+          if abs(fx) < tol:
+              return x
+          fpx = f_prime(x)
+          fppx = f_double_prime(x)
+          G = fpx / fx
+          H = G * G - fppx / fx
+          denom1 = G + np.sqrt((len(coefficients) - 1) * (len(coefficients) * H - G * G))
+          denom2 = G - np.sqrt((len(coefficients) - 1) * (len(coefficients) * H - G * G))
+          a = len(coefficients) / (denom1 if abs(denom1) > abs(denom2) else denom2)
+          x -= a
+          if abs(a) < tol:
+              if abs(f(x)) < tol:
+                  return x
+              else:
+                  initial_guess = x + 1  # Change guess if not converged
+                  x = initial_guess
+      raise ValueError("Laguerre method did not converge")
+
+  def synthetic_division(self, coefficients, root):
+      new_coeffs = [coefficients[0]]
+      for coeff in coefficients[1:]:
+          new_coeffs.append(new_coeffs[-1] * root + coeff)
+      return new_coeffs[:-1]
+
+  def find_all_roots(self, coefficients, initial_guess=0, tol=1e-6, max_iter=100):
+      roots = []
+      while len(coefficients) > 1:
+          root = self.laguerre_method(coefficients, initial_guess, tol, max_iter)
+          roots.append(root)
+          coefficients = self.synthetic_division(coefficients, root)
+          initial_guess = root
+      return roots
+  def midpoint_integration(self,f,lower_limit,upper_limit,N):
+        h=(upper_limit - lower_limit)/N
+        inte_sums=0
+        for i in range(N):
+            x=(2*lower_limit+(2*i+1)*h)/2
+            inte_sums+=f(x)
+        solution=h*inte_sums
+        return solution
+
+  def Trapezoidal_integration(self,f,lower_limit,upper_limit,N):
+        h=(upper_limit - lower_limit)/N
+        inte_sum=0
+        for i in range(N+1):
+            x=i*h + lower_limit
+            if i==0 or i==N: 
+                inte_sum+=0.5*h*f(x)
+            else:
+                inte_sum+=h*f(x)
+        solution=inte_sum
+        return solution
+  
+  def simpson_integration(self,f,lower_limit,upper_limit,N):
+        h=(upper_limit-lower_limit)/(N)
+        int_sum=0
+        for i in range(N+1):
+            x=lower_limit+i*h
+            if i==0 or i==N:
+                int_sum+=f(x)
+            elif i%2==0:
+                int_sum+=2*f(x)
+            else:
+                int_sum+=4*f(x)
+        sol=(h/3)*int_sum
+        return sol
+  def monte_carlo_integration(self,f,lower_limit,upper_limit,N):
+        ge=self.uniformly_pRNG(lower_limit,N,lower_limit,upper_limit)
+        sol=0
+        err=0
+        for x in ge:
+            sol+=f(x)
+            err+=(f(x))**2
+        sol=sol*((upper_limit-lower_limit)/N)
+        err=(err/N)-(sol/N)**2
+        return sol , err
+
+
+        
+          
       
-    
-    
+                
+  
+          
+
+      
+      
